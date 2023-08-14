@@ -10,7 +10,7 @@ const elements = {
 
 const LS_KEY = "feedback-form-state";
 
-const formInput ={};
+let formInput ={};
 
 elements.form.addEventListener('input', throttle(handlerInput, 500))
 
@@ -21,23 +21,27 @@ function handlerInput(evt) {
 };
 
 function formOutput() {
-    const savedForm = JSON.parse(localStorage.getItem(LS_KEY));
-
-    elements.input.value = savedForm.email;
-    elements.message.value = savedForm.message;
-}
+    const savedForm = localStorage.getItem(LS_KEY);
+    if (savedForm) {
+        formInput = JSON.parse(savedForm);
+        elements.input.value = formInput.email || '';
+        elements.message.value = formInput.message || '';
+    };
+};
 
 formOutput()
 
 elements.form.addEventListener('submit', handlerSubmit)
 
+
 function handlerSubmit(evt) {
     evt.preventDefault();
-
-    const {email, message} = evt.currentTarget.elements
+    if (elements.input.value === '' || elements.message.value === '') {
+        alert('Please, fill in all fields');
+        return;
+    }
     localStorage.removeItem(LS_KEY);
-
-    console.log({email: email.value, message: message.value})
-
-    elements.form.reset()
-};
+    console.log({ email: elements.input.value, message: elements.message.value });
+    elements.form.reset();
+    formInput = {};
+}
